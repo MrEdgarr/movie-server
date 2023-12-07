@@ -5,6 +5,15 @@ require("dotenv").config();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept"
+    );
+    next();
+});
+
 const citysRouter = require("./routes/city.routes");
 const cinemasRouter = require("./routes/cinema.routes");
 const bookingsRouter = require("./routes/booking.routes");
