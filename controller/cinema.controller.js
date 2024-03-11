@@ -19,7 +19,7 @@ const cinemasController = {
         try {
             const { id } = req.params;
             const [rows, fields] = await pool.query(
-                "SELECT * FROM `cinemas` WHERE cinemas.city_id =  ?",
+                "SELECT * FROM `cinemas` WHERE id =  ?",
                 [id]
             );
             res.json({
@@ -64,7 +64,7 @@ const cinemasController = {
                 req.body;
             const { id } = req.params;
             const sql =
-                "UPDATE `cinemas` SET `city_id`='?',`cinema_name`='?',`cinema_address`='?',`cinema_phone`='?' WHERE cinema_id = ?";
+                "UPDATE `cinemas` SET `city_id`='?',`cinema_name`='?',`cinema_address`='?',`cinema_phone`='?' WHERE id = ?";
             const [rows, fields] = await pool.query(sql, [
                 city_id,
                 cinema_name,
@@ -89,7 +89,7 @@ const cinemasController = {
         try {
             const { id } = req.params;
             const [rows, fields] = await pool.query(
-                "DELETE FROM `cinemas` WHERE cinema = ?",
+                "DELETE FROM `cinemas` WHERE id = ?",
                 [id]
             );
             res.json({

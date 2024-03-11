@@ -19,7 +19,7 @@ const roomsController = {
         try {
             const { id } = req.params;
             const [rows, fields] = await pool.query(
-                "SELECT * FROM `rooms` where room_id = ?",
+                "SELECT * FROM `rooms` where id = ?",
                 [id]
             );
             res.json({

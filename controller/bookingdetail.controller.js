@@ -1,9 +1,9 @@
 const pool = require("../config/database");
-const citysController = {
+const bookingsDetailController = {
     getAll: async (req, res) => {
         try {
             const [rows, fields] = await pool.query(
-                "SELECT citys.*, COUNT( cinemas.id ) AS lgh_cinema FROM citys, cinemas WHERE citys.id = cinemas.city_id GROUP BY cinemas.city_id"
+                "SELECT * FROM `booking_detail`"
             );
             res.json({
                 status: 200,
@@ -21,7 +21,7 @@ const citysController = {
         try {
             const { id } = req.params;
             const [rows, fields] = await pool.query(
-                "SELECT * FROM `citys` where id = ?",
+                "SELECT * FROM `booking_detail` where id = ?",
                 [id]
             );
             res.json({
@@ -38,9 +38,14 @@ const citysController = {
     },
     create: async (req, res) => {
         try {
-            const { city_name } = req.body;
-            const sql = "INSERT INTO `citys`( `city_name`) VALUES (?)";
-            const [rows, fields] = await pool.query(sql, [city_name]);
+            const { booking_id, tickets_id, seats_id } = req.body;
+            const sql =
+                "INSERT INTO `booking_detail`(`booking_id`, `tickets_id`, `seats_id`) VALUES (?, ?, ?)";
+            const [rows, fields] = await pool.query(sql, [
+                booking_id,
+                tickets_id,
+                seats_id,
+            ]);
             res.json({
                 status: 200,
                 message: "Get data has successfully",
@@ -55,10 +60,16 @@ const citysController = {
     },
     update: async (req, res) => {
         try {
-            const { city_name } = req.body;
+            const { booking_id, tickets_id, seats_id } = req.body;
             const { id } = req.params;
-            const sql = "UPDATE `citys` SET `city_name`='?' WHERE id = ?";
-            const [rows, fields] = await pool.query(sql, [city_name, id]);
+            const sql =
+                "UPDATE `booking_detail` SET `booking_id`=?, `tickets_id`=?, `seats_id`=? WHERE id = ?";
+            const [rows, fields] = await pool.query(sql, [
+                booking_id,
+                tickets_id,
+                seats_id,
+                id,
+            ]);
             res.json({
                 status: 200,
                 message: "Get data has successfully",
@@ -75,7 +86,7 @@ const citysController = {
         try {
             const { id } = req.params;
             const [rows, fields] = await pool.query(
-                "DELETE FROM `citys` WHERE id = ?",
+                "DELETE FROM `booking_detail` WHERE id = ?",
                 [id]
             );
             res.json({
@@ -92,4 +103,4 @@ const citysController = {
     },
 };
 
-module.exports = citysController;
+module.exports = bookingsDetailController;

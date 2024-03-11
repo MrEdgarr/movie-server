@@ -19,7 +19,7 @@ const usersController = {
         try {
             const { id } = req.params;
             const [rows, fields] = await pool.query(
-                "SELECT * FROM `users` where user_id = ?",
+                "SELECT * FROM `users` where id = ?",
                 [id]
             );
             res.json({
@@ -39,28 +39,22 @@ const usersController = {
             const {
                 username,
                 password,
-                user_avatar,
-                user_fullname,
                 user_birthday,
                 user_gender,
                 user_email,
-                user_city,
                 user_phone,
-                user_point,
+                last_logged_at,
             } = req.body;
             const sql =
-                "INSERT INTO `users`(`username`, `password`, `user_avatar`, `user_fullname`, `user_birthday`, `user_gender`, `user_email`, `user_city`, `user_phone`, `user_point`) VALUES (?,?,?,?,?,?,?,?,?,?)";
+                "INSERT INTO `users`(`username`, `password`, `user_birthday`, `user_gender`, `user_email`,  `user_phone`, `last_logged_at`) VALUES (?,?,?,?,?,?,?)";
             const [rows, fields] = await pool.query(sql, [
                 username,
                 password,
-                user_avatar,
-                user_fullname,
                 user_birthday,
                 user_gender,
                 user_email,
-                user_city,
                 user_phone,
-                user_point,
+                last_logged_at,
             ]);
             res.json({
                 status: 200,
@@ -79,29 +73,23 @@ const usersController = {
             const {
                 username,
                 password,
-                user_avatar,
-                user_fullname,
                 user_birthday,
                 user_gender,
                 user_email,
-                user_city,
                 user_phone,
-                user_point,
+                last_logged_at,
             } = req.body;
             const { id } = req.params;
             const sql =
-                "UPDATE `users` SET `username`=?,`password`=?,`user_avatar`=?,`user_fullname`=?,`user_birthday`=?,`user_gender`=?,`user_email`=?,`user_city`=?,`user_phone`=?',`user_point`=?' WHERE ?";
+                "UPDATE `users` SET `username`=?,`password`=?, `user_birthday`=?,`user_gender`=?,`user_email`=?,`user_phone`=?',`last_logged_at`=?' WHERE ?";
             const [rows, fields] = await pool.query(sql, [
                 username,
                 password,
-                user_avatar,
-                user_fullname,
                 user_birthday,
                 user_gender,
                 user_email,
-                user_city,
                 user_phone,
-                user_point,
+                last_logged_at,
                 id,
             ]);
             res.json({
@@ -120,7 +108,7 @@ const usersController = {
         try {
             const { id } = req.params;
             const [rows, fields] = await pool.query(
-                "DELETE FROM `users` WHERE user_id =  ?",
+                "DELETE FROM `users` WHERE id =  ?",
                 [id]
             );
             res.json({

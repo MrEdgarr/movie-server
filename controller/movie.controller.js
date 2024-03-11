@@ -19,7 +19,7 @@ const postsController = {
         try {
             const { id } = req.params;
             const [rows, fields] = await pool.query(
-                "select * from movies where movie_id = ?",
+                "select * from movies where id = ?",
                 [id]
             );
             res.json({
