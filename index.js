@@ -25,7 +25,7 @@ const schedulesRouter = require("./routes/schedule.routes");
 const seatsRouter = require("./routes/seats.routes");
 const ticketsRouter = require("./routes/tickets.routes");
 const usersRouter = require("./routes/user.routes");
-const slideRouter = require("./routes/slide");
+const slideRouter = require("./routes/slide.routes");
 
 app.use("/api/v1/booking", bookingsRouter);
 app.use("/api/v1/bookingdetail", bookingsDetailRouter);
