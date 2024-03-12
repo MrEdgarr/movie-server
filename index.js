@@ -25,6 +25,7 @@ const schedulesRouter = require("./routes/schedule.routes");
 const seatsRouter = require("./routes/seats.routes");
 const ticketsRouter = require("./routes/tickets.routes");
 const usersRouter = require("./routes/user.routes");
+const slideRouter = require("./routes/slide");
 
 app.use("/api/v1/booking", bookingsRouter);
 app.use("/api/v1/bookingdetail", bookingsDetailRouter);
@@ -37,7 +38,7 @@ app.use("/api/v1/schedule", schedulesRouter);
 app.use("/api/v1/seat", seatsRouter);
 app.use("/api/v1/tickets", ticketsRouter);
 app.use("/api/v1/user", usersRouter);
-app.use("/api/v1/slide", usersRouter);
+app.use("/api/v1/slide", slideRouter);
 
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => console.log(`Server is running in POST ${PORT}`));
