@@ -37,6 +37,7 @@ app.use("/api/v1/schedule", schedulesRouter);
 app.use("/api/v1/seat", seatsRouter);
 app.use("/api/v1/tickets", ticketsRouter);
 app.use("/api/v1/user", usersRouter);
+app.use("/api/v1/slide", usersRouter);
 
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => console.log(`Server is running in POST ${PORT}`));
