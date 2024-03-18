@@ -1,5 +1,5 @@
 const pool = require("../config/database");
-const citysController = {
+const scheduleController = {
     getAll: async (req, res) => {
         console.log(req.body);
         try {
@@ -60,4 +60,4 @@ const citysController = {
     },
 };
 
-module.exports = citysController;
+module.exports = scheduleController;

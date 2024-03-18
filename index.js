@@ -6,12 +6,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.header(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept"
-    );
-    next();
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
 });
 
 const bookingsRouter = require("./routes/booking.routes");
@@ -26,6 +26,9 @@ const seatsRouter = require("./routes/seats.routes");
 const ticketsRouter = require("./routes/tickets.routes");
 const usersRouter = require("./routes/user.routes");
 const slideRouter = require("./routes/slide.routes");
+
+const qickbuyRouter = require("./routes/qickbuy.routes");
+app.use("/api/v1/qickbuy", qickbuyRouter);
 
 app.use("/api/v1/booking", bookingsRouter);
 app.use("/api/v1/bookingdetail", bookingsDetailRouter);

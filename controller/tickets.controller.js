@@ -1,5 +1,5 @@
 const pool = require("../config/database");
-const citysController = {
+const ticketsController = {
     getAll: async (req, res) => {
         try {
             const [rows, fields] = await pool.query(
@@ -98,4 +98,4 @@ const citysController = {
     },
 };
 
-module.exports = citysController;
+module.exports = ticketsController;
