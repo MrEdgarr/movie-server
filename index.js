@@ -6,18 +6,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept"
+    );
+    next();
 });
 
 const bookingsRouter = require("./routes/booking.routes");
-const bookingsDetailRouter = require("./routes/bookingdetail.routes");
+const bookingdetailRouter = require("./routes/bookingdetail.routes");
 const cinemasRouter = require("./routes/cinema.routes");
-const citysRouter = require("./routes/city.routes");
+const cityRouter = require("./routes/city.routes");
 const commentsRouter = require("./routes/comments.routes");
 const moviesRouter = require("./routes/movie.routes");
 const roomsRouter = require("./routes/room.routes");
@@ -27,13 +27,13 @@ const ticketsRouter = require("./routes/tickets.routes");
 const usersRouter = require("./routes/user.routes");
 const slideRouter = require("./routes/slide.routes");
 
-const qickbuyRouter = require("./routes/qickbuy.routes");
-app.use("/api/v1/qickbuy", qickbuyRouter);
+const quicksRouter = require("./routes/quicks.routes");
+app.use("/api/v1/quicks", quicksRouter);
 
 app.use("/api/v1/booking", bookingsRouter);
-app.use("/api/v1/bookingdetail", bookingsDetailRouter);
+app.use("/api/v1/bookingdetail", bookingdetailRouter);
 app.use("/api/v1/cinema", cinemasRouter);
-app.use("/api/v1/city", citysRouter);
+app.use("/api/v1/city", cityRouter);
 app.use("/api/v1/comments", commentsRouter);
 app.use("/api/v1/movie", moviesRouter);
 app.use("/api/v1/room", roomsRouter);

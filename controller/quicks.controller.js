@@ -1,5 +1,5 @@
 const pool = require("../config/database");
-const qickbuyController = {
+const quicksController = {
     getAllByMovie: async (req, res) => {
         try {
             const { id } = req.params;
@@ -42,11 +42,11 @@ const qickbuyController = {
     },
     getscheduleByMovieCinema: async (req, res) => {
         try {
-            const { id, cid, dateid } = req.params;
+            const { id, cid, dated } = req.params;
             console.log(req.params);
             const [rows, fields] = await pool.query(
                 "SELECT schedules.* FROM schedules INNER JOIN movies t1 ON t1.id = schedules.movie_id INNER JOIN rooms t2 ON t2.id = schedules.room_id INNER JOIN cinemas t3 on t3.id = t2.cinema_id WHERE t1.id = ? and t3.id = ? and DATE_FORMAT(schedules.start_time, '%d-%m-%Y') = ?",
-                [id, cid, dateid]
+                [id, cid, dated]
             );
             res.json({
                 status: 200,
@@ -62,4 +62,4 @@ const qickbuyController = {
     },
 };
 
-module.exports = qickbuyController;
+module.exports = quicksController;
