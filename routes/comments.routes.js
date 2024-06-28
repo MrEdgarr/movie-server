@@ -5,7 +5,7 @@ const commentsController = require("../controller/comments.controller");
 
 router.get("/", commentsController.getAll);
 router.get("/:id", commentsController.getById);
-router.post("/", commentsController.create);
-router.put("/:id", commentsController.update);
-router.delete("/:id", commentsController.delete);
+router.post("/create", commentsController.create);
+router.put("/update/:id", commentsController.update);
+router.delete("/delete/:id", commentsController.delete);
 module.exports = router;
