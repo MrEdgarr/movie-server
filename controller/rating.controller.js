@@ -1,11 +1,11 @@
 const pool = require("../config/database");
-const commentsController = {
+const citysController = {
   // ----------------------------------- GET ALL API -----------------------------------
   getAll: async (req, res) => {
     try {
       // ----------------------------------- QUERY SQL -----------------------------------
       const [rows, fields] = await pool.query(
-        "SELECT comments.* from comments"
+        "SELECT `id`, `user_id`, `movie_id`, `rate`, `create_at`, `update_at` FROM `ratings`"
       );
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
@@ -48,7 +48,7 @@ const commentsController = {
       }
       // ----------------------------------- QUERY SQL -----------------------------------
       const [rows, fields] = await pool.query(
-        "SELECT * FROM `comments` where id = ?",
+        "SELECT `id`, `user_id`, `movie_id`, `rate`, `create_at`, `update_at` FROM `ratings` where id = ?",
         [id]
       );
       // ----------------------------------- STATUS 404 -----------------------------------
@@ -79,10 +79,10 @@ const commentsController = {
   // ----------------------------------- POST API -----------------------------------
   create: async (req, res) => {
     try {
-      const { user_id, movie_id, content, create_at } = req.body;
+      const { user_id, movie_id, rate, create_at } = req.body;
 
       // ----------------------------------- STATUS 500 -----------------------------------
-      if (!user_id || !movie_id || !content) {
+      if (!city_name) {
         return res.status(500).send({
           success: false,
           message: "Please Provide all fields",
@@ -90,14 +90,14 @@ const commentsController = {
       }
       // ----------------------------------- QUERY SQL -----------------------------------
       const sql =
-        "INSERT INTO `comments`( `user_id`, `movie_id`, `content`, `create_at` )" +
-        " VALUES (?, ?, ?, unix_timestamp(NOW()))";
+        "INSERT INTO `ratings`( `user_id`, `movie_id`, `rate`, `create_at`) VALUES (?,?,?,unix_timestamp(NOW()))";
       const [rows, fields] = await pool.query(sql, [
         user_id,
         movie_id,
-        content,
+        rate,
         create_at,
       ]);
+
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
         return res.status(404).send({
@@ -124,7 +124,7 @@ const commentsController = {
   // ----------------------------------- PUT API -----------------------------------
   update: async (req, res) => {
     try {
-      const { content } = req.body;
+      const { user_id, movie_id, rate } = req.body;
 
       // ----------------------------------- ID API -----------------------------------
       const { id } = req.params;
@@ -138,8 +138,13 @@ const commentsController = {
       }
       // ----------------------------------- QUERY SQL-----------------------------------
       const sql =
-        "UPDATE `comments` SET  `content`=? , `update_at`= unix_timestamp(NOW()) WHERE id = ?";
-      const [rows, fields] = await pool.query(sql, [content, id]);
+        "UPDATE `ratings` SET `user_id`=? ,`movie_id`= ?,`rate`= ?,`update_at`= unix_timestamp(NOW()) WHERE id = ?";
+      const [rows, fields] = await pool.query(sql, [
+        user_id,
+        movie_id,
+        rate,
+        id,
+      ]);
       // ----------------------------------- STATUS 500 -----------------------------------
       if (!rows) {
         return res.status(500).send({
@@ -177,7 +182,7 @@ const commentsController = {
       }
       // ----------------------------------- QUERY SQL-----------------------------------
       const [rows, fields] = await pool.query(
-        "DELETE FROM `comments` WHERE id = ?",
+        "DELETE FROM `ratings` WHERE id = ?",
         [id]
       );
       // ----------------------------------- STATUS 200 -----------------------------------
@@ -198,4 +203,4 @@ const commentsController = {
   },
 };
 
-module.exports = commentsController;
+module.exports = citysController;

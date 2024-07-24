@@ -1,5 +1,43 @@
 const pool = require("../config/database");
 const usersController = {
+  // ----------------------------------- LOGIN USER -----------------------------------
+  loginController: async (req, res) => {
+    try {
+      const { user_email, password } = req.body;
+      if (!user_email || !password) {
+        return res.status(500).send({
+          success: false,
+          message: " Please Provide Email Or Password",
+        });
+      }
+      const [exiting] = await pool.query(
+        "SELECT * FROM `users` WHERE user_email = ? and password = ?",
+        [user_email, password]
+      );
+      if (exiting.length == 0) {
+        return res.status(500).send({
+          success: false,
+          message: "Incorrect Username and/or Password!",
+        });
+      }
+      // ----------------------------------- STATUS 200 -----------------------------------
+      res.status(200).send({
+        status: 200,
+        success: true,
+        message: "Logged in successfully",
+        data: exiting,
+      });
+    } catch (error) {
+      console.log(error);
+      // ----------------------------------- STATUS 500 -----------------------------------
+      res.status(500).send({
+        status: 500,
+        success: false,
+        message: "Error in Get All API",
+        error,
+      });
+    }
+  },
   // ----------------------------------- GET ALL API -----------------------------------
   getAll: async (req, res) => {
     try {
@@ -74,7 +112,7 @@ const usersController = {
       });
     }
   },
-  // ----------------------------------- POST API -----------------------------------
+  // ----------------------------------- REGISTER USER -----------------------------------
   create: async (req, res) => {
     try {
       const {
@@ -85,23 +123,42 @@ const usersController = {
         user_email,
         user_phone,
         last_logged_at,
+        passwordConfirm,
       } = req.body;
 
       // ----------------------------------- STATUS 500 -----------------------------------
       if (
-        !user_name ||
-        !password ||
-        !user_birthday ||
-        !user_gender ||
-        !user_email ||
-        !user_phone ||
-        !last_logged_at
+        (!user_name ||
+          !password ||
+          !user_birthday ||
+          !user_gender ||
+          !user_email ||
+          !user_phone ||
+          !last_logged_at,
+        !passwordConfirm)
       ) {
         return res.status(500).send({
           success: false,
           message: "Please Provide all fields",
         });
       }
+
+      const [exiting] = await pool.query(
+        "SELECT * FROM `users` WHERE user_email = ? ",
+        [user_email]
+      );
+      if (exiting.length > 0) {
+        return res.status(500).send({
+          success: false,
+          message: "Email Already",
+        });
+      } else if (password !== passwordConfirm) {
+        return res.status(500).send({
+          success: false,
+          message: "Passwords do not match",
+        });
+      }
+
       // ----------------------------------- QUERY SQL -----------------------------------
       const sql =
         "INSERT INTO `users`(`user_name`, `password`, `user_birthday`, `user_gender`, `user_email`,  `user_phone`, `last_logged_at`) VALUES (?,?,?,?,?,?,?)";
@@ -121,7 +178,7 @@ const usersController = {
           message: "Error In INSERT QUERY",
         });
       }
-      // ----------------------------------- STATUS 201 -----------------------------------
+      // // ----------------------------------- STATUS 201 -----------------------------------
       res.status(201).send({
         success: true,
         message: "New Record Created",
@@ -159,9 +216,10 @@ const usersController = {
           message: "Invalid Id Or Provide id",
         });
       }
+      var curDate = new Date(+7);
       // ----------------------------------- QUERY SQL-----------------------------------
       const sql =
-        "UPDATE `users` SET `user_name`=?,`password`=?, `user_birthday`=?,`user_gender`=?,`user_email`=?,`user_phone`=?,`last_logged_at`=? WHERE id = ?";
+        "UPDATE `users` SET `user_name`=?,`password`=?, `user_birthday`=?,`user_gender`=?,`user_email`=?,`user_phone`=?,`last_logged_at`=?, `update_at`= ? WHERE id = ?";
       const [rows, fields] = await pool.query(sql, [
         user_name,
         password,
@@ -170,6 +228,7 @@ const usersController = {
         user_email,
         user_phone,
         last_logged_at,
+        curDate,
         id,
       ]);
       // ----------------------------------- STATUS 500 -----------------------------------

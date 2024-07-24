@@ -75,36 +75,54 @@ const scheduleController = {
       });
     }
   },
-  // ----------------------------------- GET BY DATE API -----------------------------------
-  getByDate: async (req, res) => {
+  // ----------------------------------- CREATE SCHEDULE -----------------------------------
+  create: async (req, res) => {
     try {
-      const { id, date } = req.params;
-      // ----------------------------------- STATUS 404 -----------------------------------
-      if (!id || !date) {
-        return res.status(404).send({
-          status: 404,
+      const { movie_id, room_id, start_time, end_time } = req.body;
+
+      // ----------------------------------- STATUS 500 -----------------------------------
+      if (!movie_id || !room_id || !start_time || !end_time) {
+        return res.status(500).send({
           success: false,
-          message: "Invalid Or Provide id or date",
+          message: "Please Provide all fields",
         });
       }
-      // ----------------------------------- QUERY SQL -----------------------------------
-      const [rows, fields] = await pool.query(
-        "SELECT schedules.* FROM schedules INNER JOIN rooms ON rooms.room_id = schedules.room_id and rooms.cinema_id = ? and FROM_UNIXTIME(schedules.schedule_date, '%d/%m') = ?;",
-        [id, date]
+
+      const [exiting] = await pool.query(
+        "SELECT * FROM `schedules` WHERE schedules.room_id = ? " +
+          "AND unix_timestamp(?) + 1 BETWEEN schedules.start_time and schedules.end_time " +
+          "OR schedules.room_id = ? " +
+          "AND unix_timestamp(?) - 1 BETWEEN schedules.start_time and schedules.end_time ",
+        [room_id, start_time, room_id, end_time]
       );
+      if (exiting.length > 0 || start_time == end_time) {
+        return res.status(500).send({
+          success: false,
+          message: "Showtime already exists",
+        });
+      }
+
+      // ----------------------------------- QUERY SQL -----------------------------------
+      const sql =
+        "INSERT INTO `schedules`( `movie_id`, `room_id`, `start_time`, `end_time`) VALUES  (?,?,unix_timestamp(?),unix_timestamp(?))";
+      const [rows, fields] = await pool.query(sql, [
+        movie_id,
+        room_id,
+        start_time,
+        end_time,
+      ]);
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
         return res.status(404).send({
-          status: 404,
           success: false,
-          message: "No Records found",
+          message: "Error In INSERT QUERY",
         });
       }
-      // ----------------------------------- STATUS 200 -----------------------------------
-      res.status(200).send({
-        status: 200,
+      console.log(rows);
+      // // ----------------------------------- STATUS 201 -----------------------------------
+      res.status(201).send({
         success: true,
-        data: rows,
+        message: "New Record Created",
       });
     } catch (error) {
       console.log(error);
@@ -112,7 +130,101 @@ const scheduleController = {
       res.status(500).send({
         status: 500,
         success: false,
-        message: "Error in Get by id or date API",
+        message: "Error in Create API",
+        error,
+      });
+    }
+  },
+  // ----------------------------------- PUT SCHEDULE -----------------------------------
+  update: async (req, res) => {
+    try {
+      const { movie_id, room_id, start_time, end_time } = req.body;
+      // ----------------------------------- ID API -----------------------------------
+      const { id } = req.params;
+      // ----------------------------------- STATUS 404 -----------------------------------
+      if (!id) {
+        return res.status(404).send({
+          status: 404,
+          success: false,
+          message: "Invalid Id Or Provide id",
+        });
+      }
+
+      const [exiting] = await pool.query(
+        "SELECT * FROM `schedules` WHERE NOT schedules.id = ? AND schedules.room_id = ? " +
+          "AND unix_timestamp(?) + 1 BETWEEN schedules.start_time and schedules.end_time " +
+          "OR NOT schedules.id = ? AND schedules.room_id = ? " +
+          "AND unix_timestamp(?) - 1 BETWEEN schedules.start_time and schedules.end_time ",
+        [id, room_id, start_time, id, room_id, end_time]
+      );
+      if (exiting.length > 0 || start_time == end_time) {
+        return res.status(500).send({
+          success: false,
+          message: "Showtime already exists",
+        });
+      }
+      // ----------------------------------- QUERY SQL-----------------------------------
+      const sql =
+        "UPDATE `schedules` SET `movie_id`=?,`room_id`=?, `start_time`=unix_timestamp(?),`end_time`=unix_timestamp(?) WHERE id = ?";
+      const [rows, fields] = await pool.query(sql, [
+        movie_id,
+        room_id,
+        start_time,
+        end_time,
+        id,
+      ]);
+      // ----------------------------------- STATUS 500 -----------------------------------
+      if (!rows) {
+        return res.status(500).send({
+          success: false,
+          message: "Error In Update Data",
+        });
+      }
+      // ----------------------------------- STATUS 200 -----------------------------------
+      res.status(200).send({
+        success: true,
+        message: "Details Updated",
+      });
+    } catch (error) {
+      console.log(error);
+      // ----------------------------------- STATUS 500 -----------------------------------
+      res.status(500).send({
+        status: 500,
+        success: false,
+        message: "Error in Update API",
+        error,
+      });
+    }
+  },
+  // ----------------------------------- DELETE API -----------------------------------
+  delete: async (req, res) => {
+    try {
+      const { id } = req.params;
+      // ----------------------------------- STATUS 404 -----------------------------------
+      if (!id) {
+        return res.status(404).send({
+          status: 404,
+          success: false,
+          message: "Please Provide Id or Valid User Id",
+        });
+      }
+      // ----------------------------------- QUERY SQL-----------------------------------
+      const [rows, fields] = await pool.query(
+        "DELETE FROM `schedules` WHERE id =  ?",
+        [id]
+      );
+      // ----------------------------------- STATUS 200 -----------------------------------
+      res.status(200).send({
+        success: true,
+        message: "Deleted Successfully",
+      });
+    } catch (error) {
+      console.log(error);
+      // ----------------------------------- STATUS 500 -----------------------------------
+      res.status(500).send({
+        status: 500,
+        success: false,
+        message: "Error in Delete API",
         error,
       });
     }

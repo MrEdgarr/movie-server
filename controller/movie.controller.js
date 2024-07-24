@@ -4,7 +4,9 @@ const postsController = {
   getAll: async (req, res) => {
     try {
       // ----------------------------------- QUERY SQL -----------------------------------
-      const [rows, fields] = await pool.query("select * from movies");
+      const [rows, fields] = await pool.query(
+        "select *,DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(movies.movie_release), @@session.time_zone, '+07:00'), '%T %d/%m/%Y') as movie_release_format from movies"
+      );
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
         return res.status(404).send({
@@ -46,7 +48,7 @@ const postsController = {
       }
       // ----------------------------------- QUERY SQL -----------------------------------
       const [rows, fields] = await pool.query(
-        "select * from movies where id = ?",
+        "select *, DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(movies.movie_release), @@session.time_zone, '+07:00'), '%T %d/%m/%Y') as movie_release_format from movies where id = ?",
         [id]
       );
       // ----------------------------------- STATUS 404 -----------------------------------
@@ -91,6 +93,7 @@ const postsController = {
         movie_production_countries,
         movie_spoken_languages,
         movie_vote_average,
+        create_at,
       } = req.body;
       // ----------------------------------- STATUS 500 -----------------------------------
       if (
@@ -106,7 +109,8 @@ const postsController = {
         !movie_backdrop ||
         !movie_production_countries ||
         !movie_spoken_languages ||
-        !movie_vote_average
+        !movie_vote_average ||
+        !create_at
       ) {
         return res.status(500).send({
           success: false,
@@ -115,7 +119,7 @@ const postsController = {
       }
       // ----------------------------------- QUERY SQL -----------------------------------
       const sql =
-        "INSERT INTO `movies`(`movie_name`, `movie_description`, `movie_trailer`, `movie_cens`, `movie_genres`, `movie_release`, `movie_lenght`, `movie_format`, `movie_poster`, `movie_backdrop`, `movie_production_countries`, `movie_spoken_languages`, `movie_vote_average`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        "INSERT INTO `movies`(`movie_name`, `movie_description`, `movie_trailer`, `movie_cens`, `movie_genres`, `movie_release`, `movie_lenght`, `movie_format`, `movie_poster`, `movie_backdrop`, `movie_production_countries`, `movie_spoken_languages`, `movie_vote_average`, `create_at`) VALUES (?,?,?,?,?,unix_timestamp(?),?,?,?,?,?,?,?, unix_timestamp(NOW()))";
       const [rows, fields] = await pool.query(sql, [
         movie_name,
         movie_description,
@@ -130,6 +134,7 @@ const postsController = {
         movie_production_countries,
         movie_spoken_languages,
         movie_vote_average,
+        create_at,
       ]);
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
@@ -185,7 +190,7 @@ const postsController = {
       }
       // ----------------------------------- QUERY SQL-----------------------------------
       const sql =
-        "UPDATE `movies` SET `movie_name`=?,`movie_description`=?,`movie_trailer`=?,`movie_cens`=?,`movie_genres`=?,`movie_release`=?,`movie_lenght`=?,`movie_format`=?,`movie_poster`=?,`movie_backdrop`=?,`movie_production_countries`=?,`movie_spoken_languages`=?,`movie_vote_average`=? WHERE movie_id=?";
+        "UPDATE `movies` SET `movie_name`=?,`movie_description`=?,`movie_trailer`=?,`movie_cens`=?,`movie_genres`=?,`movie_release`=unix_timestamp(?),`movie_lenght`=?,`movie_format`=?,`movie_poster`=?,`movie_backdrop`=?,`movie_production_countries`=?,`movie_spoken_languages`=?,`movie_vote_average`=?, `update_at`=unix_timestamp(NOW()) WHERE movie_id=?";
       const [rows, fields] = await pool.query(sql, [
         movie_name,
         movie_description,

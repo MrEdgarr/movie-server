@@ -87,7 +87,9 @@ const bookingsController = {
         });
       }
       // ----------------------------------- QUERY SQL -----------------------------------
-      const sql = "INSERT INTO `bookings`(`user_id`) VALUES (?)";
+      const sql =
+        "INSERT INTO `bookings`(`user_id`,`create_at`)" +
+        " VALUES (?, unix_timestamp(NOW()) )";
       const [rows, fields] = await pool.query(sql, [user_id]);
 
       // ----------------------------------- STATUS 404 -----------------------------------
@@ -114,80 +116,80 @@ const bookingsController = {
     }
   },
   // ----------------------------------- PUT API -----------------------------------
-  update: async (req, res) => {
-    try {
-      const { user_id } = req.body;
+  // update: async (req, res) => {
+  //   try {
+  //     const { user_id } = req.body;
 
-      // ----------------------------------- ID API -----------------------------------
-      const { id } = req.params;
-      // ----------------------------------- STATUS 404 -----------------------------------
-      if (!id) {
-        return res.status(404).send({
-          status: 404,
-          success: false,
-          message: "Invalid Id Or Provide id",
-        });
-      }
-      // ----------------------------------- QUERY SQL-----------------------------------
-      const sql =
-        "UPDATE `bookings` SET `user_id`=?, `update_at`= CURRENT_TIMESTAMP WHERE id = ?";
-      const [rows, fields] = await pool.query(sql, [user_id, id]);
-      // ----------------------------------- STATUS 500 -----------------------------------
-      if (!rows) {
-        return res.status(500).send({
-          success: false,
-          message: "Error In Update Data",
-        });
-      }
-      // ----------------------------------- STATUS 200 -----------------------------------
-      res.status(200).send({
-        success: true,
-        message: "Details Updated",
-      });
-    } catch (error) {
-      console.log(error);
-      // ----------------------------------- STATUS 500 -----------------------------------
-      res.status(500).send({
-        status: 500,
-        success: false,
-        message: "Error in Update API",
-        error,
-      });
-    }
-  },
+  //     // ----------------------------------- ID API -----------------------------------
+  //     const { id } = req.params;
+  //     // ----------------------------------- STATUS 404 -----------------------------------
+  //     if (!id) {
+  //       return res.status(404).send({
+  //         status: 404,
+  //         success: false,
+  //         message: "Invalid Id Or Provide id",
+  //       });
+  //     }
+  //     // ----------------------------------- QUERY SQL-----------------------------------
+  //     const sql =
+  //       "UPDATE `bookings` SET `user_id`=?, `update_at`= unix_timestamp(NOW()) WHERE id = ?";
+  //     const [rows, fields] = await pool.query(sql, [user_id, id]);
+  //     // ----------------------------------- STATUS 500 -----------------------------------
+  //     if (!rows) {
+  //       return res.status(500).send({
+  //         success: false,
+  //         message: "Error In Update Data",
+  //       });
+  //     }
+  //     // ----------------------------------- STATUS 200 -----------------------------------
+  //     res.status(200).send({
+  //       success: true,
+  //       message: "Details Updated",
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     // ----------------------------------- STATUS 500 -----------------------------------
+  //     res.status(500).send({
+  //       status: 500,
+  //       success: false,
+  //       message: "Error in Update API",
+  //       error,
+  //     });
+  //   }
+  // },
   // ----------------------------------- DELETE API -----------------------------------
-  delete: async (req, res) => {
-    try {
-      const { id } = req.params;
-      // ----------------------------------- STATUS 404 -----------------------------------
-      if (!id) {
-        return res.status(404).send({
-          status: 404,
-          success: false,
-          message: "Please Provide Id or Valid User Id",
-        });
-      }
-      // ----------------------------------- QUERY SQL-----------------------------------
-      const [rows, fields] = await pool.query(
-        "DELETE FROM `bookings` WHERE id = ?",
-        [id]
-      );
-      // ----------------------------------- STATUS 200 -----------------------------------
-      res.status(200).send({
-        success: true,
-        message: "Deleted Successfully",
-      });
-    } catch (error) {
-      console.log(error);
-      // ----------------------------------- STATUS 500 -----------------------------------
-      res.status(500).send({
-        status: 500,
-        success: false,
-        message: "Error in Delete API",
-        error,
-      });
-    }
-  },
+  // delete: async (req, res) => {
+  //   try {
+  //     const { id } = req.params;
+  //     // ----------------------------------- STATUS 404 -----------------------------------
+  //     if (!id) {
+  //       return res.status(404).send({
+  //         status: 404,
+  //         success: false,
+  //         message: "Please Provide Id or Valid User Id",
+  //       });
+  //     }
+  //     // ----------------------------------- QUERY SQL-----------------------------------
+  //     const [rows, fields] = await pool.query(
+  //       "DELETE FROM `bookings` WHERE id = ?",
+  //       [id]
+  //     );
+  //     // ----------------------------------- STATUS 200 -----------------------------------
+  //     res.status(200).send({
+  //       success: true,
+  //       message: "Deleted Successfully",
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     // ----------------------------------- STATUS 500 -----------------------------------
+  //     res.status(500).send({
+  //       status: 500,
+  //       success: false,
+  //       message: "Error in Delete API",
+  //       error,
+  //     });
+  //   }
+  // },
 };
 
 module.exports = bookingsController;
