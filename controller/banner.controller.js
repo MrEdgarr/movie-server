@@ -4,7 +4,7 @@ const slideController = {
   getAll: async (req, res) => {
     try {
       // ----------------------------------- QUERY SQL -----------------------------------
-      const [rows, fields] = await pool.query("SELECT * FROM `slide`");
+      const [rows, fields] = await pool.query("SELECT * FROM `banner`");
       if (!rows) {
         return res.status(404).send({
           status: 404,
