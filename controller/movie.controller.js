@@ -5,7 +5,7 @@ const postsController = {
     try {
       // ----------------------------------- QUERY SQL -----------------------------------
       const [rows, fields] = await pool.query(
-        "select *,DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(movies.movie_release), @@session.time_zone, '+07:00'), '%T %d/%m/%Y') as movie_release_format from movies"
+        "select *,DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(movies.movie_release), @@session.time_zone, '+07:00'), '%d/%m/%Y') as movie_release_format from movies"
       );
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
@@ -48,7 +48,7 @@ const postsController = {
       }
       // ----------------------------------- QUERY SQL -----------------------------------
       const [rows, fields] = await pool.query(
-        "select *, DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(movies.movie_release), @@session.time_zone, '+07:00'), '%T %d/%m/%Y') as movie_release_format from movies where id = ?",
+        "select *, DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(movies.movie_release), @@session.time_zone, '+07:00'), '%d/%m/%Y') as movie_release_format from movies where id = ?",
         [id]
       );
       // ----------------------------------- STATUS 404 -----------------------------------
