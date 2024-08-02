@@ -236,13 +236,13 @@ const scheduleController = {
       const { date, cinema } = req.body;
       // ----------------------------------- QUERY SQL -----------------------------------
       const sqlByDate =
-        "SELECT schedules.*, t2.*, t3.movie_format FROM `schedules` " +
+        "SELECT schedules.*, t2.id as cinema_id, t3.movie_format FROM `schedules` " +
         "INNER JOIN rooms t1 ON t1.id = schedules.room_id " +
         "INNER JOIN cinemas t2 ON t2.id = t1.cinema_id " +
         "INNER JOIN movies t3 ON t3.id = schedules.movie_id " +
         "WHERE DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(schedules.start_time), @@session.time_zone, '+07:00'), '%d/%m') = ?";
       const sqlByDateAndCinema =
-        "SELECT schedules.*, t2.*, t3.movie_format FROM schedules " +
+        "SELECT schedules.*, t2.id as cinema_id, t3.movie_format FROM schedules " +
         "INNER JOIN rooms t1 ON t1.id = schedules.room_id " +
         "INNER JOIN cinemas t2 ON t2.id = t1.cinema_id " +
         "INNER JOIN movies t3 ON t3.id = schedules.movie_id " +
