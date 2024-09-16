@@ -119,7 +119,6 @@ const usersController = {
         user_name,
         password,
         user_birthday,
-        user_gender,
         user_email,
         user_phone,
         last_logged_at,
@@ -131,7 +130,6 @@ const usersController = {
         (!user_name ||
           !password ||
           !user_birthday ||
-          !user_gender ||
           !user_email ||
           !user_phone ||
           !last_logged_at,
@@ -161,12 +159,11 @@ const usersController = {
 
       // ----------------------------------- QUERY SQL -----------------------------------
       const sql =
-        "INSERT INTO `users`(`user_name`, `password`, `user_birthday`, `user_gender`, `user_email`,  `user_phone`, `last_logged_at`) VALUES (?,?,?,?,?,?,?)";
+        "INSERT INTO `users`(`user_name`, `password`, `user_birthday`, `user_email`,  `user_phone`, `last_logged_at`) VALUES (?,?,?,?,?,?)";
       const [rows, fields] = await pool.query(sql, [
         user_name,
         password,
         user_birthday,
-        user_gender,
         user_email,
         user_phone,
         last_logged_at,
@@ -201,7 +198,6 @@ const usersController = {
         user_name,
         password,
         user_birthday,
-        user_gender,
         user_email,
         user_phone,
         last_logged_at,
@@ -219,12 +215,11 @@ const usersController = {
       var curDate = new Date(+7);
       // ----------------------------------- QUERY SQL-----------------------------------
       const sql =
-        "UPDATE `users` SET `user_name`=?,`password`=?, `user_birthday`=?,`user_gender`=?,`user_email`=?,`user_phone`=?,`last_logged_at`=?, `update_at`= ? WHERE id = ?";
+        "UPDATE `users` SET `user_name`=?,`password`=?, `user_birthday`=?,`user_email`=?,`user_phone`=?,`last_logged_at`=?, `update_at`= ? WHERE id = ?";
       const [rows, fields] = await pool.query(sql, [
         user_name,
         password,
         user_birthday,
-        user_gender,
         user_email,
         user_phone,
         last_logged_at,

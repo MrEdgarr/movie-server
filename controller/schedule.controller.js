@@ -3,8 +3,13 @@ const scheduleController = {
   // ----------------------------------- GET ALL API -----------------------------------
   getAll: async (req, res) => {
     try {
+      //  const test =
+      //  "SELECT d.cinema_id, d.city_id, d.cinema_name, d.cinema_address, d.cinema_phone, ( JSON_ARRAYAGG( JSON_OBJECT( 'schedule_id', d.id, 'schedule_start', d.start_time ) ) ) cinema_data FROM ( SELECT cinemas.id AS cinema_id, cinemas.city_id, cinemas.cinema_name, cinemas.cinema_address, cinemas.cinema_phone, schedules.* FROM schedules schedules INNER JOIN rooms rooms ON rooms.id = schedules.room_id INNER JOIN cinemas cinemas ON cinemas.id = rooms.cinema_id INNER JOIN movies movies ON movies.id = schedules.movie_id WHERE movies.id = 10 ) d GROUP BY d.cinema_id, d.cinema_name;";
+      const test =
+        "SELECT o.city_id, o.city_name, ( JSON_ARRAYAGG( JSON_OBJECT( 'cinema_id', o.cinema_id, 'city_id', o.city_id, 'cinema_name', o.cinema_name, 'cinema_phone', o.cinema_phone, 'cinema_address', o.cinema_address, 'results', o.schedules ) ) ) cinema_data FROM ( SELECT d.cinema_id, d.city_id, d.cinema_name, d.cinema_address, d.cinema_phone, d.city_name, ( JSON_ARRAYAGG( JSON_OBJECT( 'schedule_id', d.id, 'schedule_start', d.start_time, 'movie_id', d.movie_id, 'room_id', d.room_id, 'end_time', d.end_time ) ) ) schedules FROM ( SELECT cinemas.id AS cinema_id, cinemas.city_id, cinemas.cinema_name, cinemas.cinema_address, cinemas.cinema_phone, citys.city_name, schedules.* FROM schedules schedules INNER JOIN rooms rooms ON rooms.id = schedules.room_id INNER JOIN cinemas cinemas ON cinemas.id = rooms.cinema_id INNER JOIN movies movies ON movies.id = schedules.movie_id INNER JOIN citys citys ON citys.id = cinemas.city_id ) d GROUP BY d.cinema_id, d.cinema_name ) o GROUP BY o.city_id, o.city_name";
+
       // ----------------------------------- QUERY SQL -----------------------------------
-      const [rows, fields] = await pool.query("SELECT * FROM `schedules`");
+      const [rows, fields] = await pool.query(test);
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
         return res.status(404).send({
@@ -18,7 +23,6 @@ const scheduleController = {
         status: 200,
         success: true,
         message: "All Records",
-        totalUsers: rows.length,
         data: rows,
       });
     } catch (error) {
@@ -225,84 +229,6 @@ const scheduleController = {
         status: 500,
         success: false,
         message: "Error in Delete API",
-        error,
-      });
-    }
-  },
-
-  get_movie_by_schedule: async (req, res, next) => {
-    console.log(req.body);
-    try {
-      const { date, cinema } = req.body;
-      // ----------------------------------- QUERY SQL -----------------------------------
-      const sqlByDate =
-        "SELECT schedules.*, t2.city_id, t3.movie_format FROM `schedules` " +
-        "INNER JOIN rooms t1 ON t1.id = schedules.room_id " +
-        "INNER JOIN cinemas t2 ON t2.id = t1.cinema_id " +
-        "INNER JOIN movies t3 ON t3.id = schedules.movie_id " +
-        "WHERE DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(schedules.start_time), @@session.time_zone, '+07:00'), '%d/%m') = ?";
-      const sqlByDateAndCinema =
-        "SELECT schedules.*, t2.city_id, t3.movie_format FROM schedules " +
-        "INNER JOIN rooms t1 ON t1.id = schedules.room_id " +
-        "INNER JOIN cinemas t2 ON t2.id = t1.cinema_id " +
-        "INNER JOIN movies t3 ON t3.id = schedules.movie_id " +
-        "WHERE DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(schedules.start_time), @@session.time_zone, '+07:00'), '%d/%m') = ? " +
-        "AND t2.id = ?";
-      if (!date && !cinema) {
-        return res.status(404).send({
-          status: 404,
-          success: false,
-          message: "Invalid Or Provide date",
-        });
-      }
-      // ----------------------------------- IF - ELSE   -----------------------------------
-      if (date && !cinema) {
-        const [rows, fields] = await pool.query(sqlByDate, [date]);
-        // ----------------------------------- STATUS 404 -----------------------------------
-        if (!rows) {
-          return res.status(404).send({
-            status: 404,
-            success: false,
-            message: "No Records found",
-          });
-        }
-        // ----------------------------------- STATUS 200 -----------------------------------
-        res.status(200).send({
-          status: 200,
-          success: true,
-          message: "All Records",
-          totalUsers: rows.length,
-          data: rows,
-        });
-      } else if (date && cinema) {
-        const [rows, fields] = await pool.query(sqlByDateAndCinema, [
-          date,
-          cinema,
-        ]);
-        // ----------------------------------- STATUS 404 -----------------------------------
-        if (!rows) {
-          return res.status(404).send({
-            status: 404,
-            success: false,
-            message: "No Records found",
-          });
-        }
-        // ----------------------------------- STATUS 200 -----------------------------------
-        res.status(200).send({
-          status: 200,
-          success: true,
-          message: "All Records",
-          totalUsers: rows.length,
-          data: rows,
-        });
-      }
-    } catch (error) {
-      console.log(error);
-      // ----------------------------------- STATUS 500 -----------------------------------
-      res.status(500).send({
-        status: 500,
-        success: false,
-        message: "Error in Get All API",
         error,
       });
     }
