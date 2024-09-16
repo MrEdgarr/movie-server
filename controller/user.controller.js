@@ -121,19 +121,17 @@ const usersController = {
         user_birthday,
         user_email,
         user_phone,
-        last_logged_at,
         passwordConfirm,
       } = req.body;
 
       // ----------------------------------- STATUS 500 -----------------------------------
       if (
-        (!user_name ||
-          !password ||
-          !user_birthday ||
-          !user_email ||
-          !user_phone ||
-          !last_logged_at,
-        !passwordConfirm)
+        !user_name ||
+        !password ||
+        !user_birthday ||
+        !user_email ||
+        !user_phone ||
+        !passwordConfirm
       ) {
         return res.status(500).send({
           success: false,
@@ -159,14 +157,13 @@ const usersController = {
 
       // ----------------------------------- QUERY SQL -----------------------------------
       const sql =
-        "INSERT INTO `users`(`user_name`, `password`, `user_birthday`, `user_email`,  `user_phone`, `last_logged_at`) VALUES (?,?,?,?,?,?)";
+        "INSERT INTO `users`(`user_name`, `password`, `user_birthday`, `user_email`,  `user_phone`,`create_at`) VALUES (?,?,?,?,?, unix_timestamp(NOW())))";
       const [rows, fields] = await pool.query(sql, [
         user_name,
         password,
         user_birthday,
         user_email,
         user_phone,
-        last_logged_at,
       ]);
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
