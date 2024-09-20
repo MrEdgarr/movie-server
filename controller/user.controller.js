@@ -11,9 +11,15 @@ const usersController = {
         });
       }
       const [exiting] = await pool.query(
-        "SELECT *, DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(users.user_birthday), @@session.time_zone, '+07:00'), '%d/%m/%Y') as birthday_format FROM `users` WHERE user_email = ? and password = ?",
+        "SELECT * FROM `users` WHERE user_email = ? and password = ?",
         [user_email, password]
       );
+
+      // UPDATE LAST LOGGED AT
+      const [last_logged_at] = await pool.query(
+        "UPDATE `users` SET `last_logged_at`= unix_timestamp(NOW())"
+      );
+
       if (exiting.length == 0) {
         return res.status(500).send({
           success: false,
