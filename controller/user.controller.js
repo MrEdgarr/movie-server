@@ -11,7 +11,7 @@ const usersController = {
         });
       }
       const [exiting] = await pool.query(
-        "SELECT * FROM `users` WHERE user_email = ? and password = ?",
+        "SELECT *, DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(users.user_birthday), @@session.time_zone, '+07:00'), '%d/%m/%Y') as birthday_format FROM `users` WHERE user_email = ? and password = ?",
         [user_email, password]
       );
       if (exiting.length == 0) {
