@@ -121,20 +121,13 @@ const usersController = {
   // ----------------------------------- REGISTER USER -----------------------------------
   create: async (req, res) => {
     try {
-      const {
-        user_name,
-        password,
-        user_birthday,
-        user_email,
-        user_phone,
-        passwordConfirm,
-      } = req.body;
+      const { user_name, password, user_email, user_phone, passwordConfirm } =
+        req.body;
 
       // ----------------------------------- STATUS 500 -----------------------------------
       if (
         !user_name ||
         !password ||
-        !user_birthday ||
         !user_email ||
         !user_phone ||
         !passwordConfirm
@@ -163,11 +156,10 @@ const usersController = {
 
       // ----------------------------------- QUERY SQL -----------------------------------
       const sql =
-        "INSERT INTO `users`(`user_name`, `password`, `user_birthday`, `user_email`,  `user_phone`,`create_at`) VALUES (?,?,?,?,?, unix_timestamp(NOW()))";
+        "INSERT INTO `users`(`user_name`, `password`, `user_email`,  `user_phone`,`create_at`) VALUES (?,?,?,?, unix_timestamp(NOW()))";
       const [rows, fields] = await pool.query(sql, [
         user_name,
         password,
-        user_birthday,
         user_email,
         user_phone,
       ]);
@@ -197,14 +189,8 @@ const usersController = {
   // ----------------------------------- PUT API -----------------------------------
   update: async (req, res) => {
     try {
-      const {
-        user_name,
-        password,
-        user_birthday,
-        user_email,
-        user_phone,
-        last_logged_at,
-      } = req.body;
+      const { user_name, password, user_email, user_phone, last_logged_at } =
+        req.body;
       // ----------------------------------- ID API -----------------------------------
       const { id } = req.params;
       // ----------------------------------- STATUS 404 -----------------------------------
@@ -218,11 +204,10 @@ const usersController = {
       var curDate = new Date(+7);
       // ----------------------------------- QUERY SQL-----------------------------------
       const sql =
-        "UPDATE `users` SET `user_name`=?,`password`=?, `user_birthday`=?,`user_email`=?,`user_phone`=?,`last_logged_at`=?, `update_at`= ? WHERE id = ?";
+        "UPDATE `users` SET `user_name`=?,`password`=?, `user_email`=?,`user_phone`=?,`last_logged_at`=?, `update_at`= ? WHERE id = ?";
       const [rows, fields] = await pool.query(sql, [
         user_name,
         password,
-        user_birthday,
         user_email,
         user_phone,
         last_logged_at,
