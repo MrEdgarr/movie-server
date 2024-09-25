@@ -33,7 +33,7 @@ const usersController = {
           message: "Tên người dùng và/hoặc mật khẩu không đúng!",
         });
       }
-      
+
       const token = jwt.sign(
         {
           id: exiting[0].id,
@@ -44,7 +44,7 @@ const usersController = {
           update_at: exiting[0].update_at,
           create_at: exiting[0].create_at,
         },
-        "your_jwt_secret",
+        process.env.ACCESS_TOKEN_SECRET,
         {
           expiresIn: "2h",
         }
@@ -73,7 +73,7 @@ const usersController = {
     try {
       // ----------------------------------- QUERY SQL -----------------------------------
       const [rows, fields] = await pool.query(
-        `SELECT ${SELECT_SQL}} FROM users`
+        `SELECT ${SELECT_SQL} FROM users`
       );
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
@@ -82,10 +82,11 @@ const usersController = {
           message: "No Records found",
         });
       }
+
       // ----------------------------------- STATUS 200 -----------------------------------
       res.status(200).send({
         message: "success",
-        data: rows,
+        data: req.data,
       });
     } catch (error) {
       console.log(error);
