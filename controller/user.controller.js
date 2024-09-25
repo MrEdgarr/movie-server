@@ -1,5 +1,6 @@
 const pool = require("../config/database");
 const jwt = require("jsonwebtoken");
+
 const SELECT_SQL =
   "users.id,users.user_name,users.password,users.user_email,users.user_phone, " +
   "DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(users.last_logged_at), @@session.time_zone, '+07:00'), '%H:%i:%s %d/%m/%Y') as last_logged_at," +
@@ -32,11 +33,24 @@ const usersController = {
           message: "Tên người dùng và/hoặc mật khẩu không đúng!",
         });
       }
+      
+      const token = jwt.sign(
+        {
+          id: exiting[0].id,
+          user_name: exiting[0].user_name,
+          user_email: exiting[0].user_email,
+          user_phone: exiting[0].user_phone,
+          last_logged_at: exiting[0].last_logged_at,
+          update_at: exiting[0].update_at,
+          create_at: exiting[0].create_at,
+        },
+        "your_jwt_secret",
+        {
+          expiresIn: "2h",
+        }
+      );
 
-      // TOKEN
-      const token = jwt.sign({ id: exiting.id }, "your_jwt_secret", {
-        expiresIn: "1h",
-      });
+      console.log(exiting[0]);
 
       // ----------------------------------- STATUS 200 -----------------------------------
       res.status(200).send({
