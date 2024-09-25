@@ -35,15 +35,7 @@ const usersController = {
       }
 
       const token = jwt.sign(
-        {
-          id: exiting[0].id,
-          user_name: exiting[0].user_name,
-          user_email: exiting[0].user_email,
-          user_phone: exiting[0].user_phone,
-          last_logged_at: exiting[0].last_logged_at,
-          update_at: exiting[0].update_at,
-          create_at: exiting[0].create_at,
-        },
+        { id: exiting[0].id },
         process.env.ACCESS_TOKEN_SECRET,
         {
           expiresIn: "2h",
