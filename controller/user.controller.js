@@ -1,6 +1,4 @@
 const pool = require("../config/database");
-const jwt = require("jsonwebtoken");
-
 const SELECT_SQL =
   "users.id,users.user_name,users.password,users.user_email,users.user_phone, " +
   "DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(users.last_logged_at), @@session.time_zone, '+07:00'), '%H:%i:%s %d/%m/%Y') as last_logged_at," +
@@ -34,16 +32,6 @@ const usersController = {
         });
       }
 
-      const token = jwt.sign(
-        { id: exiting[0].id },
-        process.env.ACCESS_TOKEN_SECRET,
-        {
-          expiresIn: "2h",
-        }
-      );
-
-      console.log(exiting[0]);
-
       // ----------------------------------- STATUS 200 -----------------------------------
       res.status(200).send({
         message: "Đăng nhập thành công",
@@ -56,7 +44,7 @@ const usersController = {
       res.status(500).send({
         success: false,
         message: "Error in Get All API",
-        error,
+        error: error,
       });
     }
   },
@@ -65,7 +53,7 @@ const usersController = {
     try {
       // ----------------------------------- QUERY SQL -----------------------------------
       const [rows, fields] = await pool.query(
-        `SELECT ${SELECT_SQL} FROM users`
+        `SELECT ${SELECT_SQL}} FROM users`
       );
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
@@ -74,11 +62,10 @@ const usersController = {
           message: "No Records found",
         });
       }
-
       // ----------------------------------- STATUS 200 -----------------------------------
       res.status(200).send({
         message: "success",
-        data: req.data,
+        data: rows,
       });
     } catch (error) {
       console.log(error);
@@ -86,6 +73,7 @@ const usersController = {
       res.status(500).send({
         success: false,
         message: "Error in Get All API",
+        error: error,
       });
     }
   },
@@ -123,7 +111,7 @@ const usersController = {
       res.status(500).send({
         success: false,
         message: "Error in Get by id API",
-        error,
+        error: error,
       });
     }
   },
@@ -190,7 +178,7 @@ const usersController = {
       res.status(500).send({
         success: false,
         message: "Error in Create API",
-        error,
+        error: error,
       });
     }
   },
@@ -235,7 +223,7 @@ const usersController = {
       res.status(500).send({
         success: false,
         message: "Error in Update API",
-        error,
+        error: error,
       });
     }
   },
@@ -266,6 +254,7 @@ const usersController = {
       res.status(500).send({
         success: false,
         message: "Error in Delete API",
+        error: error,
       });
     }
   },
