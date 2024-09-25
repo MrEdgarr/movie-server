@@ -1,4 +1,10 @@
 const pool = require("../config/database");
+const jwt = require("jsonwebtoken");
+const SELECT_SQL =
+  "users.id,users.user_name,users.password,users.user_email,users.user_phone, " +
+  "DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(users.last_logged_at), @@session.time_zone, '+07:00'), '%H:%i:%s %d/%m/%Y') as last_logged_at," +
+  "DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(users.update_at), @@session.time_zone, '+07:00'), '%H:%i:%s %d/%m/%Y') as update_at," +
+  "DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(users.create_at), @@session.time_zone, '+07:00'), '%H:%i:%s %d/%m/%Y') as create_at";
 const usersController = {
   // ----------------------------------- LOGIN USER -----------------------------------
   loginController: async (req, res) => {
@@ -7,11 +13,11 @@ const usersController = {
       if (!user_email || !password) {
         return res.status(500).send({
           success: false,
-          message: " Please Provide Email Or Password",
+          message: "Vui lòng cung cấp Email hoặc mật khẩu",
         });
       }
       const [exiting] = await pool.query(
-        "SELECT * FROM `users` WHERE user_email = ? and password = ?",
+        `SELECT ${SELECT_SQL} FROM users WHERE user_email = ? and password = ?`,
         [user_email, password]
       );
 
@@ -23,21 +29,25 @@ const usersController = {
       if (exiting.length == 0) {
         return res.status(500).send({
           success: false,
-          message: "Incorrect Username and/or Password!",
+          message: "Tên người dùng và/hoặc mật khẩu không đúng!",
         });
       }
+
+      // TOKEN
+      const token = jwt.sign({ id: exiting.id }, "your_jwt_secret", {
+        expiresIn: "1h",
+      });
+
       // ----------------------------------- STATUS 200 -----------------------------------
       res.status(200).send({
-        status: 200,
-        success: true,
-        message: "Logged in successfully",
-        data: exiting,
+        message: "Đăng nhập thành công",
+        token: token,
+        data: exiting[0],
       });
     } catch (error) {
       console.log(error);
       // ----------------------------------- STATUS 500 -----------------------------------
       res.status(500).send({
-        status: 500,
         success: false,
         message: "Error in Get All API",
         error,
@@ -48,31 +58,27 @@ const usersController = {
   getAll: async (req, res) => {
     try {
       // ----------------------------------- QUERY SQL -----------------------------------
-      const [rows, fields] = await pool.query("SELECT * FROM `users`");
+      const [rows, fields] = await pool.query(
+        `SELECT ${SELECT_SQL}} FROM users`
+      );
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
         return res.status(404).send({
-          status: 404,
           success: false,
           message: "No Records found",
         });
       }
       // ----------------------------------- STATUS 200 -----------------------------------
       res.status(200).send({
-        status: 200,
-        success: true,
-        message: "All Records",
-        totalUsers: rows.length,
+        message: "success",
         data: rows,
       });
     } catch (error) {
       console.log(error);
       // ----------------------------------- STATUS 500 -----------------------------------
       res.status(500).send({
-        status: 500,
         success: false,
         message: "Error in Get All API",
-        error,
       });
     }
   },
@@ -83,35 +89,31 @@ const usersController = {
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!id) {
         return res.status(404).send({
-          status: 404,
           success: false,
-          message: "Invalid Or Provide id",
+          message: "Invalid id",
         });
       }
       // ----------------------------------- QUERY SQL -----------------------------------
       const [rows, fields] = await pool.query(
-        "SELECT * FROM `users` where id = ?",
+        `SELECT ${SELECT_SQL} FROM users where id = ?`,
         [id]
       );
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
         return res.status(404).send({
-          status: 404,
           success: false,
           message: "No Records found",
         });
       }
       // ----------------------------------- STATUS 200 -----------------------------------
       res.status(200).send({
-        status: 200,
-        success: true,
+        message: "success",
         data: rows,
       });
     } catch (error) {
       console.log(error);
       // ----------------------------------- STATUS 500 -----------------------------------
       res.status(500).send({
-        status: 500,
         success: false,
         message: "Error in Get by id API",
         error,
@@ -145,12 +147,12 @@ const usersController = {
       if (exiting.length > 0) {
         return res.status(500).send({
           success: false,
-          message: "Email Already",
+          message: "Email đã tồn tại",
         });
       } else if (password !== passwordConfirm) {
         return res.status(500).send({
           success: false,
-          message: "Passwords do not match",
+          message: "Mật khẩu không khớp",
         });
       }
 
@@ -173,13 +175,12 @@ const usersController = {
       // // ----------------------------------- STATUS 201 -----------------------------------
       res.status(201).send({
         success: true,
-        message: "New Record Created",
+        message: "Đăng kí thành công",
       });
     } catch (error) {
       console.log(error);
       // ----------------------------------- STATUS 500 -----------------------------------
       res.status(500).send({
-        status: 500,
         success: false,
         message: "Error in Create API",
         error,
@@ -189,48 +190,42 @@ const usersController = {
   // ----------------------------------- PUT API -----------------------------------
   update: async (req, res) => {
     try {
-      const { user_name, password, user_email, user_phone, last_logged_at } =
-        req.body;
+      const { user_name, password, user_email, user_phone } = req.body;
       // ----------------------------------- ID API -----------------------------------
       const { id } = req.params;
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!id) {
         return res.status(404).send({
-          status: 404,
           success: false,
-          message: "Invalid Id Or Provide id",
+          message: "Invalid id",
         });
       }
-      var curDate = new Date(+7);
       // ----------------------------------- QUERY SQL-----------------------------------
       const sql =
-        "UPDATE `users` SET `user_name`=?,`password`=?, `user_email`=?,`user_phone`=?,`last_logged_at`=?, `update_at`= ? WHERE id = ?";
+        "UPDATE `users` SET `user_name`=?,`password`=?, `user_email`=?,`user_phone`=?, `update_at`= unix_timestamp(NOW()) WHERE id = ?";
       const [rows, fields] = await pool.query(sql, [
         user_name,
         password,
         user_email,
         user_phone,
-        last_logged_at,
-        curDate,
         id,
       ]);
       // ----------------------------------- STATUS 500 -----------------------------------
       if (!rows) {
         return res.status(500).send({
           success: false,
-          message: "Error In Update Data",
+          message: "Lỗi trong việc cập nhật dữ liệu",
         });
       }
       // ----------------------------------- STATUS 200 -----------------------------------
       res.status(200).send({
         success: true,
-        message: "Details Updated",
+        message: "Cập nhật thành công",
       });
     } catch (error) {
       console.log(error);
       // ----------------------------------- STATUS 500 -----------------------------------
       res.status(500).send({
-        status: 500,
         success: false,
         message: "Error in Update API",
         error,
@@ -244,9 +239,8 @@ const usersController = {
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!id) {
         return res.status(404).send({
-          status: 404,
           success: false,
-          message: "Please Provide Id or Valid User Id",
+          message: "Please Provide Id",
         });
       }
       // ----------------------------------- QUERY SQL-----------------------------------
@@ -257,16 +251,14 @@ const usersController = {
       // ----------------------------------- STATUS 200 -----------------------------------
       res.status(200).send({
         success: true,
-        message: "Deleted Successfully",
+        message: "Đã xóa thành công",
       });
     } catch (error) {
       console.log(error);
       // ----------------------------------- STATUS 500 -----------------------------------
       res.status(500).send({
-        status: 500,
         success: false,
         message: "Error in Delete API",
-        error,
       });
     }
   },
