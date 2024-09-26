@@ -1,6 +1,6 @@
 const pool = require("../config/database");
 const SELECT_SQL =
-  "users.id,users.user_name,users.password,users.user_email,users.user_phone, " +
+  "users.id, users.user_name, users.password, users.user_email, users.user_phone, " +
   "DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(users.last_logged_at), @@session.time_zone, '+07:00'), '%H:%i:%s %d/%m/%Y') as last_logged_at," +
   "DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(users.update_at), @@session.time_zone, '+07:00'), '%H:%i:%s %d/%m/%Y') as update_at," +
   "DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(users.create_at), @@session.time_zone, '+07:00'), '%H:%i:%s %d/%m/%Y') as create_at";
@@ -35,7 +35,6 @@ const usersController = {
       // ----------------------------------- STATUS 200 -----------------------------------
       res.status(200).send({
         message: "Đăng nhập thành công",
-        token: token,
         data: exiting[0],
       });
     } catch (error) {
@@ -53,7 +52,7 @@ const usersController = {
     try {
       // ----------------------------------- QUERY SQL -----------------------------------
       const [rows, fields] = await pool.query(
-        `SELECT ${SELECT_SQL}} FROM users`
+        `SELECT ${SELECT_SQL} FROM users`
       );
       // ----------------------------------- STATUS 404 -----------------------------------
       if (!rows) {
