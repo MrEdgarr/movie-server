@@ -1,4 +1,6 @@
 const pool = require("../config/database");
+const jwt = require("jsonwebtoken");
+
 const SELECT_SQL =
   "users.id, users.user_name, users.password, users.user_email, users.user_phone, " +
   "DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(users.last_logged_at), @@session.time_zone, '+07:00'), '%H:%i:%s %d/%m/%Y') as last_logged_at," +
@@ -6,7 +8,7 @@ const SELECT_SQL =
   "DATE_FORMAT( CONVERT_TZ(FROM_UNIXTIME(users.create_at), @@session.time_zone, '+07:00'), '%H:%i:%s %d/%m/%Y') as create_at";
 const usersController = {
   // ----------------------------------- LOGIN USER -----------------------------------
-  loginController: async (req, res) => {
+  login: async (req, res) => {
     try {
       const { user_email, password } = req.body;
       if (!user_email || !password) {
@@ -21,7 +23,7 @@ const usersController = {
       );
 
       // UPDATE LAST LOGGED AT
-      const [last_logged_at] = await pool.query(
+      await pool.query(
         "UPDATE `users` SET `last_logged_at`= unix_timestamp(NOW())"
       );
 
@@ -32,9 +34,20 @@ const usersController = {
         });
       }
 
+      const token = jwt.sign(
+        {
+          id: exiting[0].id,
+        },
+        "your_jwt_secret",
+        {
+          expiresIn: "6h",
+        }
+      );
+
       // ----------------------------------- STATUS 200 -----------------------------------
       res.status(200).send({
         message: "Đăng nhập thành công",
+        access_token: token,
         data: exiting[0],
       });
     } catch (error) {
@@ -152,7 +165,7 @@ const usersController = {
 
       // ----------------------------------- QUERY SQL -----------------------------------
       const sql =
-        "INSERT INTO `users`(`user_name`, `password`, `user_email`,  `user_phone`,`create_at`) VALUES (?,?,?,?, unix_timestamp(NOW()))";
+        "INSERT INTO `users`(`user_name`, `password`, `user_email`,  `user_phone`, `create_at`) VALUES (?,?,?,?, unix_timestamp(NOW()))";
       const [rows, fields] = await pool.query(sql, [
         user_name,
         password,

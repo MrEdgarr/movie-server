@@ -6,7 +6,7 @@ const userController = require("../controller/user.controller");
 router.get("/", userController.getAll);
 router.get("/:id", userController.getById);
 
-router.post("/login", userController.loginController);
+router.post("/login", userController.login);
 router.post("/register", userController.create);
 
 router.put("/update/:id", userController.update);
